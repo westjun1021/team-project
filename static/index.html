@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>DBpia 논문 추천</title>
+  <style>
+    /* (기존 스타일 그대로) */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; padding: 40px; margin: 0; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px 40px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #333; margin-bottom: 30px; }
+    label { display: block; margin-top: 20px; font-weight: 600; color: #444; }
+    select, input[type="radio"] { margin-top: 8px; }
+    .subject-group { margin-top: 10px; padding-left: 10px; }
+    .subject-group label { display: inline-block; margin-right: 15px; font-weight: normal; }
+    button { margin-top: 30px; padding: 12px 24px; background-color: #007BFF; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    #result { margin-top: 40px; }
+    .paper { background: #f1f4f8; padding: 16px 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #007BFF; }
+    .paper strong { font-size: 18px; color: #222; }
+    .paper em { color: #666; display: block; margin-top: 4px; font-style: normal; }
+    .paper a { display: inline-block; margin-top: 8px; color: #007BFF; text-decoration: none; }
+    .paper a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>📚 DBpia 인기 논문 추천 시스템</h1>
+
+    <form id="recommend-form">
+      <label>연도 선택:
+        <select name="pyear">
+          <option value="">(선택 안 함)</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+        </select>
+      </label>
+
+      <label>월 선택:
+        <select name="pmonth">
+          <option value="">(선택 안 함)</option>
+          <option value="01">1월</option>
+          <option value="02">2월</option>
+          <option value="03">3월</option>
+          <option value="04">4월</option>
+          <option value="05">5월</option>
+          <option value="06">6월</option>
+          <option value="07">7월</option>
+          <option value="08">8월</option>
+          <option value="09">9월</option>
+          <option value="10">10월</option>
+          <option value="11">11월</option>
+          <option value="12">12월</option>
+        </select>
+      </label>
+
+      <label>주제 분류:</label>
+      <div class="subject-group">
+        <label><input type="radio" name="category" value=""> 전체</label>
+        <label><input type="radio" name="category" value="1"> 인문학</label>
+        <label><input type="radio" name="category" value="2"> 사회과학</label>
+        <label><input type="radio" name="category" value="3"> 자연과학</label>
+        <label><input type="radio" name="category" value="4"> 공학</label>
+        <label><input type="radio" name="category" value="5"> 의약학</label>
+        <label><input type="radio" name="category" value="6"> 농수해양</label>
+        <label><input type="radio" name="category" value="7"> 예술체육</label>
+        <label><input type="radio" name="category" value="8"> 복합학</label>
+        <label><input type="radio" name="category" value="9"> 교양</label>
+      </div>
+
+      <button type="submit">논문 추천받기</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const form      = document.getElementById('recommend-form');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // 쿼리스트링 생성
+      const params   = new URLSearchParams(new FormData(form)).toString();
+      const response = await fetch(`/recommend?${params}`);
+      const json     = await response.json();
+
+      // 기존 결과 초기화
+      resultDiv.innerHTML = '';
+
+      // recommendations 배열 추출
+      const list = json.recommendations || [];
+      if (list.length === 0) {
+        resultDiv.innerHTML = "<p>추천된 논문이 없습니다.</p>";
+        return;
+      }
+
+      // 논문 목록 렌더링
+      list.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'paper';
+        div.innerHTML = `
+          <strong>${item.title}</strong>
+          <em>저자: ${item.authors.map(a => a.name).join(', ')}</em>
+          <p>간행물: ${item.publication.name || 'N/A'}</p>
+          <a href="${item.link_url}" target="_blank">상세 보기</a>
+        `;
+        resultDiv.appendChild(div);
+      });
+    });
+  </script>
+
+</body>
+</html>
