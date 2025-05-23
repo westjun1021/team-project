@@ -178,3 +178,11 @@ __pycache__\\
 "git"    
 "type"   
 test.db
+
+
+# venv & 캐시
+venv/
+__pycache__/
+
+# SQLite 파일
+*.db
