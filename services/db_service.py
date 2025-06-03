@@ -1,5 +1,7 @@
+# services/db_service.py
+
 from sqlalchemy.orm import Session
-from models.db import Paper
+from models.paper_model import Paper  # ✅ 수정된 경로
 from schemas.paper import PaperCreate, PaperOut
 
 def create_paper(db: Session, paper: PaperCreate) -> PaperOut:
