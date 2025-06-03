@@ -1,5 +1,3 @@
-# main.py
-
 from dotenv import load_dotenv
 import os
 
@@ -9,9 +7,9 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # .env 파일 로드
-load_dotenv()  
+load_dotenv()
 
-# (선택) CORS 설정 — 프론트엔드와 분리 개발 시 필요
+# CORS 설정
 origins = [
     os.getenv("FRONTEND_URL", "*"),
 ]
@@ -32,7 +30,7 @@ from routers.recommend import router as recommend_router
 from routers.paper import router as paper_router
 from routers.auth import router as auth_router
 from routers.mypage import router as mypage_router
-from routers.bookmark import router as bookmark_router  # ✅ 추가됨
+from routers.bookmark import router as bookmark_router
 
 # 라우터 등록
 app.include_router(health_router,    prefix="/health",   tags=["health"])
@@ -40,7 +38,7 @@ app.include_router(recommend_router, tags=["recommend"])
 app.include_router(paper_router,     prefix="/papers",    tags=["papers"])
 app.include_router(auth_router,      prefix="/auth",      tags=["auth"])
 app.include_router(mypage_router)
-app.include_router(bookmark_router,  prefix="/bookmarks", tags=["bookmark"])  # ✅ 수정됨
+app.include_router(bookmark_router,  prefix="/bookmarks", tags=["bookmark"])
 
 # 정적 파일 제공
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -50,7 +48,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def serve_index():
     return FileResponse("static/index.html")
 
-# Uvicorn 실행 지원
+
+# ✅ [임시] 테이블 자동 생성 (최초 1회만 작동하면 주석처리/삭제 가능)
+from db import Base, engine
+from models import user, paper  # 사용 중인 모델들 import
+
+Base.metadata.create_all(bind=engine)
+
+
+# uvicorn 직접 실행 지원
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(

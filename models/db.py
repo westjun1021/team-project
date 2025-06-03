@@ -1,12 +1,19 @@
-from sqlalchemy import Column, Integer, String, Date
-from db import Base
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
 
-class Paper(Base):
-    __tablename__ = "papers"
+# .env 파일 로드
+load_dotenv()
 
-    id         = Column(Integer, primary_key=True, index=True)
-    title      = Column(String, index=True)
-    authors    = Column(String)     # JSON 문자열로 직렬화하거나, 별도 테이블로 분리
-    journal    = Column(String, index=True)
-    pub_date   = Column(Date)
-    link_url   = Column(String)
+# DATABASE_URL 환경변수 읽기
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# SQLAlchemy 엔진 생성
+engine = create_engine(DATABASE_URL)
+
+# 세션 클래스 설정
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Base 클래스 선언
+Base = declarative_base()
