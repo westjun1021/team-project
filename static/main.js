@@ -108,6 +108,29 @@ document.getElementById('login-form')?.addEventListener('submit', async function
 });
 
 // ==============================
+// 🔹 인증 요청용 apiGet 함수 (토큰 포함)
+// ==============================
+async function apiGet(url) {
+  const token = localStorage.getItem("token");
+
+  const headers = token
+    ? { "Authorization": "Bearer " + token }
+    : {};
+
+  const res = await fetch(API_BASE + url, {
+    method: "GET",
+    headers: headers
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "API 요청 오류");
+  }
+
+  return res.json();
+}
+
+// ==============================
 // 🔹 즐겨찾기 추가
 // ==============================
 async function addBookmark(paperId, title) {
