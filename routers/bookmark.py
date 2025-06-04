@@ -5,8 +5,9 @@ from db import get_db
 from services.auth import get_current_user
 from models.bookmark import Bookmark
 from schemas.bookmark import BookmarkCreate, BookmarkOut
+from services import bookmark as bookmark_service
 
-router = APIRouter()
+router = APIRouter(prefix="/bookmarks", tags=["bookmark"])
 
 @router.post("/", response_model=BookmarkOut)
 def create_bookmark(bookmark: BookmarkCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
@@ -22,3 +23,12 @@ def create_bookmark(bookmark: BookmarkCreate, db: Session = Depends(get_db), use
 @router.get("/", response_model=list[BookmarkOut])
 def get_my_bookmarks(db: Session = Depends(get_db), user=Depends(get_current_user)):
     return db.query(Bookmark).filter(Bookmark.user_id == user.id).all()
+
+@router.delete("/{bm_id}")
+def delete_bookmark(
+    bm_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    bookmark_service.remove_bookmark(db, user, bm_id)
+    return {"detail": "북마크가 삭제되었습니다."}
