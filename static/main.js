@@ -46,6 +46,7 @@ function renderResults(items) {
       <strong>${doc.title}</strong>
       <em>${doc.authors}</em>
       <a href="${doc.link}" target="_blank">원문 보기</a>
+      <button onclick="addBookmark('${doc.id}', '${doc.title.replace(/'/g, "\\'")}')">즐겨찾기</button>
     `;
     container.appendChild(card);
   });
@@ -78,9 +79,68 @@ document.getElementById('open-bookmark')?.addEventListener('click', () => openMo
 document.getElementById('open-mypage')?.addEventListener('click', () => openModal('modal-mypage'));
 
 // ==============================
-// 🔹 기타 (토큰 등 나중에 필요 시 활용 가능)
+// 🔹 로그인 처리 (토큰 저장)
 // ==============================
-// const token = localStorage.getItem("token");
-// if (token) {
-//   document.getElementById("logout").style.display = "inline-block";
-// }
+document.getElementById('login-form')?.addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const form = new FormData(this);
+  const username = form.get('username');
+  const password = form.get('password');
+
+  try {
+    const res = await fetch(API_BASE + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", username);
+      alert("로그인 성공!");
+      closeModal("modal-login");
+    } else {
+      alert("로그인 실패: " + (data.detail || "알 수 없는 오류"));
+    }
+  } catch (err) {
+    console.error("로그인 오류:", err);
+    alert("로그인 요청 중 오류 발생");
+  }
+});
+
+// ==============================
+// 🔹 즐겨찾기 추가
+// ==============================
+async function addBookmark(paperId, title) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  try {
+    const res = await fetch(API_BASE + "/bookmarks/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({
+        paper_id: paperId,
+        title: title
+      })
+    });
+
+    if (res.ok) {
+      alert("북마크에 추가되었습니다.");
+    } else {
+      const err = await res.json();
+      alert("실패: " + (err.detail || "오류가 발생했습니다."));
+    }
+  } catch (err) {
+    console.error("북마크 오류:", err);
+    alert("요청 중 오류 발생");
+  }
+}
