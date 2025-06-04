@@ -101,19 +101,16 @@ document.getElementById('login-form')?.addEventListener('submit', async function
       body: form
     });
 
-    console.log("🔁 응답 객체:", res);
-
     const text = await res.text();
     console.log("📦 응답 원문:", text);
 
     const data = JSON.parse(text);
-    console.log("✅ JSON 파싱 결과:", data);
+    const accessToken = data.access_token || data.token;  // ✅ 우선 access_token 사용
 
-    const token = data.token || data.access_token;
-    if (res.ok && token) {
-      localStorage.setItem("token", token);
+    if (res.ok && accessToken) {
+      localStorage.setItem("token", accessToken);  // ✅ undefined 방지
       localStorage.setItem("username", form.get("username"));
-      console.log("✅ 저장된 토큰:", token);
+      console.log("✅ 저장된 토큰:", accessToken);
       alert("로그인 성공!");
       closeModal("modal-login");
       showGreeting();
@@ -126,7 +123,6 @@ document.getElementById('login-form')?.addEventListener('submit', async function
     alert("서버와의 연결에 실패했습니다.");
   }
 });
-
 
 // ==============================
 // 🔹 현재 사용자 정보 표시
