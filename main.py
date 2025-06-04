@@ -39,7 +39,6 @@ app.include_router(paper_router, prefix="/papers",    tags=["papers"])
 app.include_router(auth_router, prefix="/auth",      tags=["auth"])
 app.include_router(mypage_router)
 app.include_router(bookmark_router, prefix="/bookmarks", tags=["bookmark"])
-print("📌 북마크 라우터 등록됨 ✅")
 
 
 # 정적 파일 제공

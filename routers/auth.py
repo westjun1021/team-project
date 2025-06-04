@@ -27,7 +27,7 @@ def signup(user_in: UserCreate, db: Session = Depends(get_db)):
     user = register_user(db, user_in)
     return user
 
-@router.post("/login", response_model=Token)
+@router.post("/login")  # ✅ response_model=Token 제거해도 됩니다
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
@@ -40,7 +40,9 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    # ✅ 프론트에서 기대하는 형식으로 수정
+    return {"token": access_token}
+
 
 @router.get("/me", response_model=UserOut)
 def read_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
