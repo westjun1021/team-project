@@ -33,12 +33,14 @@ from routers.mypage import router as mypage_router
 from routers.bookmark import router as bookmark_router
 
 # 라우터 등록
-app.include_router(health_router,    prefix="/health",   tags=["health"])
+app.include_router(health_router, prefix="/health",   tags=["health"])
 app.include_router(recommend_router, tags=["recommend"])
-app.include_router(paper_router,     prefix="/papers",    tags=["papers"])
-app.include_router(auth_router,      prefix="/auth",      tags=["auth"])
+app.include_router(paper_router, prefix="/papers",    tags=["papers"])
+app.include_router(auth_router, prefix="/auth",      tags=["auth"])
 app.include_router(mypage_router)
-app.include_router(bookmark_router,  prefix="/bookmarks", tags=["bookmark"])
+app.include_router(bookmark_router, prefix="/bookmarks", tags=["bookmark"])
+print("📌 북마크 라우터 등록됨 ✅")
+
 
 # 정적 파일 제공
 app.mount("/static", StaticFiles(directory="static"), name="static")
