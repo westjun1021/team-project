@@ -79,26 +79,23 @@ document.getElementById('open-bookmark')?.addEventListener('click', () => openMo
 document.getElementById('open-mypage')?.addEventListener('click', () => openModal('modal-mypage'));
 
 // ==============================
-// 🔹 로그인 처리 (토큰 저장)
+// 🔹 로그인 처리 (FormData 방식으로 수정)
 // ==============================
 document.getElementById('login-form')?.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const form = new FormData(this);
-  const username = form.get('username');
-  const password = form.get('password');
+  const form = new FormData(this);  // ✅ 자동으로 올바른 방식 (username/password 전송)
 
   try {
     const res = await fetch(API_BASE + "/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
+      body: form  // ✅ JSON 아님, headers도 생략 (자동으로 Content-Type 설정됨)
     });
 
     const data = await res.json();
     if (res.ok && data.token) {
       localStorage.setItem("token", data.token);
-      localStorage.setItem("username", username);
+      localStorage.setItem("username", form.get("username"));
       alert("로그인 성공!");
       closeModal("modal-login");
     } else {
