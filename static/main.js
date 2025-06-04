@@ -84,15 +84,17 @@ document.getElementById('open-mypage')?.addEventListener('click', () => openModa
 document.getElementById('login-form')?.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const form = new FormData(this);  // ✅ 자동으로 올바른 방식 (username/password 전송)
+  const form = new FormData(this);  // ✅ FormData 전송
 
   try {
     const res = await fetch(API_BASE + "/auth/login", {
       method: "POST",
-      body: form  // ✅ JSON 아님, headers도 생략 (자동으로 Content-Type 설정됨)
+      body: form
     });
 
     const data = await res.json();
+    console.log("✅ 로그인 응답:", data);  // ✅ 여기 추가
+
     if (res.ok && data.token) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", form.get("username"));
@@ -106,6 +108,7 @@ document.getElementById('login-form')?.addEventListener('submit', async function
     alert("로그인 요청 중 오류 발생");
   }
 });
+
 
 // ==============================
 // 🔹 인증 요청용 apiGet 함수 (토큰 포함)
