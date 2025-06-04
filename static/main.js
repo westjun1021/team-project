@@ -94,13 +94,20 @@ document.getElementById('login-form')?.addEventListener('submit', async function
   const form = new FormData(this);
 
   try {
+    console.log("🚀 로그인 요청 시작됨");
+
     const res = await fetch(API_BASE + "/auth/login", {
       method: "POST",
       body: form
     });
 
-    const data = await res.json();
-    console.log("✅ 로그인 응답:", data);
+    console.log("🔁 응답 객체:", res);
+
+    const text = await res.text();
+    console.log("📦 응답 원문:", text);
+
+    const data = JSON.parse(text);
+    console.log("✅ JSON 파싱 결과:", data);
 
     const token = data.token || data.access_token;
     if (res.ok && token) {
@@ -113,11 +120,13 @@ document.getElementById('login-form')?.addEventListener('submit', async function
     } else {
       alert("로그인 실패: " + (data.detail || "알 수 없는 오류"));
     }
+
   } catch (err) {
     console.error("🚨 로그인 요청 실패:", err);
     alert("서버와의 연결에 실패했습니다.");
   }
 });
+
 
 // ==============================
 // 🔹 현재 사용자 정보 표시
