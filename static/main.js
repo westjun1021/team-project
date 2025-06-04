@@ -99,23 +99,19 @@ document.getElementById('login-form')?.addEventListener('submit', async function
       body: form
     });
 
-    const data = await res.json();
-    console.log("✅ 로그인 응답:", data);
+   const data = await res.json();
+   console.log("✅ 로그인 응답:", data);
 
-    if (res.ok && data.token) {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("username", form.get("username"));
-      alert("로그인 성공!");
-      closeModal("modal-login");
-      showGreeting();
-    } else {
-      alert("로그인 실패: " + (data.detail || "알 수 없는 오류"));
-    }
-  } catch (err) {
-    console.error("로그인 오류:", err);
-    alert("로그인 요청 중 오류 발생");
-  }
-});
+   if (res.ok && data.access_token) {  // ✅ key 수정: token → access_token
+     localStorage.setItem("token", data.access_token);  // ✅ 저장도 변경
+     localStorage.setItem("username", form.get("username"));
+     alert("로그인 성공!");
+     closeModal("modal-login");
+     showGreeting();
+   } else {
+     alert("로그인 실패: " + (data.detail || "알 수 없는 오류"));
+   }
+  });
 
 // ==============================
 // 🔹 현재 사용자 정보 표시
