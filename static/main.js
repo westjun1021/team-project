@@ -75,16 +75,23 @@ document.querySelectorAll('.modal-close').forEach(btn => {
 // ==============================
 document.getElementById('open-login')?.addEventListener('click', () => openModal('modal-login'));
 document.getElementById('open-signup')?.addEventListener('click', () => openModal('modal-signup'));
-document.getElementById('open-bookmark')?.addEventListener('click', () => openModal('modal-bookmark'));
+document.getElementById('open-bookmark')?.addEventListener('click', () => {
+  if (localStorage.getItem("token")) {
+    loadBookmarks();                 // ✅ 로그인한 경우만 북마크 불러오기
+    openModal('modal-bookmark');
+  } else {
+    alert("로그인이 필요합니다.");
+  }
+});
 document.getElementById('open-mypage')?.addEventListener('click', () => openModal('modal-mypage'));
 
 // ==============================
-// 🔹 로그인 처리 (FormData 방식 + showGreeting 연동)
+// 🔹 로그인 처리
 // ==============================
 document.getElementById('login-form')?.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const form = new FormData(this);  // ✅ FormData 전송
+  const form = new FormData(this);
 
   try {
     const res = await fetch(API_BASE + "/auth/login", {
@@ -93,16 +100,13 @@ document.getElementById('login-form')?.addEventListener('submit', async function
     });
 
     const data = await res.json();
-    console.log("✅ 로그인 응답:", data);  // 콘솔 확인용
+    console.log("✅ 로그인 응답:", data);
 
     if (res.ok && data.token) {
-      // ✅ 토큰 저장
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", form.get("username"));
       alert("로그인 성공!");
       closeModal("modal-login");
-
-      // ✅ 로그인 후에만 호출
       showGreeting();
     } else {
       alert("로그인 실패: " + (data.detail || "알 수 없는 오류"));
@@ -114,7 +118,7 @@ document.getElementById('login-form')?.addEventListener('submit', async function
 });
 
 // ==============================
-// 🔹 현재 사용자 정보 불러오기 (로그인 후 인사말 표시)
+// 🔹 현재 사용자 정보 표시
 // ==============================
 async function showGreeting() {
   try {
@@ -129,7 +133,7 @@ async function showGreeting() {
 }
 
 // ==============================
-// 🔹 인증 요청용 apiGet 함수 (토큰 포함)
+// 🔹 인증 요청용 GET 함수
 // ==============================
 async function apiGet(url) {
   const token = localStorage.getItem("token");
@@ -187,7 +191,23 @@ async function addBookmark(paperId, title) {
 }
 
 // ==============================
-// ✅ 페이지 로딩 시 자동 인사 표시 (토큰 있을 때만)
+// 🔹 즐겨찾기 목록 불러오기
+// ==============================
+async function loadBookmarks() {
+  try {
+    const list = await apiGet("/bookmarks/");
+    const ul = document.getElementById("bookmark-list");
+    if (ul) {
+      ul.innerHTML = list.map(bm => `<li>${bm.title}</li>`).join("");
+    }
+  } catch (err) {
+    console.warn("북마크 불러오기 실패:", err.message);
+    alert("북마크 목록을 불러올 수 없습니다.");
+  }
+}
+
+// ==============================
+// ✅ 페이지 로딩 시 자동 인사 표시
 // ==============================
 if (localStorage.getItem("token")) {
   showGreeting();
