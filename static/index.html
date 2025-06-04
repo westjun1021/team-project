@@ -464,8 +464,14 @@
       btn.textContent = '즐겨찾기 추가';
       btn.dataset.bookmarkId = '';
     } else {
-      const { id } = await apiSend('/bookmarks/', {
-        body: { paper_id, title, authors, published_year }
+     const { id } = await apiSend('/bookmarks/', {
+       body: {
+         paper_id,
+         title,
+         authors,
+         published_year,
+         paper_link: detailUrl  
+       }
       });
       btn.classList.add('bookmarked');
       btn.textContent = '즐겨찾기 해제';
