@@ -77,7 +77,7 @@ document.getElementById('open-login')?.addEventListener('click', () => openModal
 document.getElementById('open-signup')?.addEventListener('click', () => openModal('modal-signup'));
 document.getElementById('open-bookmark')?.addEventListener('click', () => {
   if (localStorage.getItem("token")) {
-    loadBookmarks();                 // ✅ 로그인한 경우만 북마크 불러오기
+    loadBookmarks();
     openModal('modal-bookmark');
   } else {
     alert("로그인이 필요합니다.");
@@ -86,7 +86,7 @@ document.getElementById('open-bookmark')?.addEventListener('click', () => {
 document.getElementById('open-mypage')?.addEventListener('click', () => openModal('modal-mypage'));
 
 // ==============================
-// 🔹 로그인 처리
+// 🔹 로그인 처리 (catch 추가 + 응답 키 유연화)
 // ==============================
 document.getElementById('login-form')?.addEventListener('submit', async function (e) {
   e.preventDefault();
@@ -102,9 +102,11 @@ document.getElementById('login-form')?.addEventListener('submit', async function
     const data = await res.json();
     console.log("✅ 로그인 응답:", data);
 
-    if (res.ok && data.access_token) {
-      localStorage.setItem("token", data.access_token);
+    const token = data.token || data.access_token;
+    if (res.ok && token) {
+      localStorage.setItem("token", token);
       localStorage.setItem("username", form.get("username"));
+      console.log("✅ 저장된 토큰:", token);
       alert("로그인 성공!");
       closeModal("modal-login");
       showGreeting();
@@ -112,7 +114,7 @@ document.getElementById('login-form')?.addEventListener('submit', async function
       alert("로그인 실패: " + (data.detail || "알 수 없는 오류"));
     }
   } catch (err) {
-    console.error("🚨 로그인 요청 실패:", err);  // ✅ 오류 로그 추가
+    console.error("🚨 로그인 요청 실패:", err);
     alert("서버와의 연결에 실패했습니다.");
   }
 });
