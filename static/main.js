@@ -185,3 +185,10 @@ async function addBookmark(paperId, title) {
     alert("요청 중 오류 발생");
   }
 }
+
+// ==============================
+// ✅ 페이지 로딩 시 자동 인사 표시 (토큰 있을 때만)
+// ==============================
+if (localStorage.getItem("token")) {
+  showGreeting();
+}
