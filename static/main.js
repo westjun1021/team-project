@@ -84,7 +84,7 @@ document.getElementById('open-mypage')?.addEventListener('click', () => openModa
 document.getElementById('login-form')?.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const form = new FormData(this);
+  const form = new FormData(this);  // ✅ FormData 전송
 
   try {
     const res = await fetch(API_BASE + "/auth/login", {
@@ -93,15 +93,16 @@ document.getElementById('login-form')?.addEventListener('submit', async function
     });
 
     const data = await res.json();
-    console.log("✅ 로그인 응답:", data);
+    console.log("✅ 로그인 응답:", data);  // 콘솔 확인용
 
     if (res.ok && data.token) {
+      // ✅ 토큰 저장
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", form.get("username"));
       alert("로그인 성공!");
       closeModal("modal-login");
 
-      // ✅ 로그인 후 인사 표시
+      // ✅ 로그인 후에만 호출
       showGreeting();
     } else {
       alert("로그인 실패: " + (data.detail || "알 수 없는 오류"));
