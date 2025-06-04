@@ -79,12 +79,12 @@ document.getElementById('open-bookmark')?.addEventListener('click', () => openMo
 document.getElementById('open-mypage')?.addEventListener('click', () => openModal('modal-mypage'));
 
 // ==============================
-// 🔹 로그인 처리 (FormData 방식으로 수정)
+// 🔹 로그인 처리 (FormData 방식 + showGreeting 연동)
 // ==============================
 document.getElementById('login-form')?.addEventListener('submit', async function (e) {
   e.preventDefault();
 
-  const form = new FormData(this);  // ✅ FormData 전송
+  const form = new FormData(this);
 
   try {
     const res = await fetch(API_BASE + "/auth/login", {
@@ -93,13 +93,16 @@ document.getElementById('login-form')?.addEventListener('submit', async function
     });
 
     const data = await res.json();
-    console.log("✅ 로그인 응답:", data);  // ✅ 여기 추가
+    console.log("✅ 로그인 응답:", data);
 
     if (res.ok && data.token) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", form.get("username"));
       alert("로그인 성공!");
       closeModal("modal-login");
+
+      // ✅ 로그인 후 인사 표시
+      showGreeting();
     } else {
       alert("로그인 실패: " + (data.detail || "알 수 없는 오류"));
     }
@@ -109,6 +112,20 @@ document.getElementById('login-form')?.addEventListener('submit', async function
   }
 });
 
+// ==============================
+// 🔹 현재 사용자 정보 불러오기 (로그인 후 인사말 표시)
+// ==============================
+async function showGreeting() {
+  try {
+    const user = await apiGet("/auth/me");
+    const greetingEl = document.getElementById("greeting");
+    if (greetingEl) {
+      greetingEl.textContent = `${user.nickname || user.username}님 환영합니다!`;
+    }
+  } catch (err) {
+    console.warn("인증 실패:", err.message);
+  }
+}
 
 // ==============================
 // 🔹 인증 요청용 apiGet 함수 (토큰 포함)

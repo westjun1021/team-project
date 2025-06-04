@@ -7,7 +7,7 @@ from models.bookmark import Bookmark
 from schemas.bookmark import BookmarkCreate, BookmarkOut
 from services import bookmark as bookmark_service
 
-router = APIRouter(prefix="/bookmarks", tags=["bookmark"])
+router = APIRouter(tags=["bookmark"])
 
 @router.post("/", response_model=BookmarkOut)
 def create_bookmark(bookmark: BookmarkCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
