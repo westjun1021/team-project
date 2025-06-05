@@ -13,7 +13,7 @@ from models.user import User as UserModel
 from schemas.user import UserCreate, UserInDB, UserUpdate, UserPasswordChange, UserOut
 
 # 환경 변수 로드
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
+SECRET_KEY = os.getenv("SECRET_KEY", "my_super_secret_key")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 
