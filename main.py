@@ -9,9 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 # .env 파일 로드
 load_dotenv()
 
-# ✅ SECRET_KEY 확인 로그 추가
-print(f"✅ 로드된 SECRET_KEY: {os.getenv('SECRET_KEY')}")
-
 # CORS 설정
 origins = [
     os.getenv("FRONTEND_URL", "*"),

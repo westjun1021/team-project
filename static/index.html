@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>DBpia 논문 추천</title>
+
+  <!-- favicon 적용 -->
   <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; margin: 0; }
@@ -55,11 +58,11 @@
       background: #fff;
       padding: 20px 30px;
       border-radius: 8px;
-      width: 500px;  /* 여기서 모달 너비를 500px로 설정 */
+      width: 500px;
       max-height: 80vh;
       overflow-y: auto;
       position: relative;
-      z-index: 1001; /* 배경 위에 뜨도록 */
+      z-index: 1001; /* 모달 배경 위에 뜨도록 */
     }
 
     .modal-close {
@@ -69,7 +72,7 @@
       border: none;
       font-size: 18px;
       cursor: pointer;
-      z-index: 1002; /* 버튼이 가장 위에 뜨도록 */
+      z-index: 1002; /* 닫기 버튼을 가장 위에 배치 */
       color: #333;
     }
     .modal-close:hover { color: #e74c3c; }
@@ -92,8 +95,6 @@
     /* 내 즐겨찾기 모달 */
     #modal-bookmark .modal-content { width: 500px; max-height: 70vh; overflow-y: auto; }
     .bm-list { margin: 0; padding: 0; list-style: none; }
-
-    /* 각 <li>에 충분한 오른쪽 여백을 주어 x 버튼과 텍스트가 겹치지 않도록 함 */
     .bm-list li {
       margin-bottom: 15px;
       background: #f9fbe7;
@@ -101,11 +102,9 @@
       border-radius: 8px;
       border-left: 5px solid #ffd54f;
       position: relative;
-      padding-right: 80px; /* 오른쪽 여백을 넉넉히 확보 */
-      word-break: keep-all; /* 한글 단어가 이상하게 줄바뀜되지 않게 */
+      padding-right: 80px; /* 오른쪽 여백 확보 */
+      word-break: keep-all;
     }
-
-    /* 삭제 버튼을 리스트 항목의 세로 중앙, 오른쪽 위치에 배치 */
     .bm-remove {
       position: absolute;
       top: 50%;
@@ -118,16 +117,42 @@
       cursor: pointer;
     }
 
-    /* 마이페이지 탭 */
+    /* ─────────── 마이페이지 내부 탭 버튼 색상 보정 ─────────── */
+    /* 기존 탭 버튼(.tab-buttons button)이 회색으로 표시되던 것을 파란색으로 변경 */
     .tab-buttons button {
-      padding: 6px 12px;
-      background: #eee;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 8px 16px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 14px;
+      margin-right: 8px;
     }
-    .tab-buttons button:hover { background: #ddd; }
+    .tab-buttons button:hover {
+      background: #0056b3;
+    }
+    .tab-buttons button.active {
+      background: #0056b3; /* 활성화된 탭은 더 진한 파란색 */
+    }
     .mypage-tab { margin-top: 10px; }
+
+    /* ─────────── 마이페이지 내부 '변경하기' 버튼 색상 보정 ─────────── */
+    /* 닉네임 변경, 비밀번호 변경 폼 내 버튼을 기본 버튼 스타일과 동일하게 적용 */
+    #nickname-form button,
+    #mypage-form button {
+      padding: 8px 16px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #nickname-form button:hover,
+    #mypage-form button:hover {
+      background: #0056b3;
+    }
   </style>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -257,7 +282,7 @@
 
       <!-- 탭 버튼 -->
       <div class="tab-buttons" style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <button class="tab-btn" data-tab="tab-nickname">닉네임 변경</button>
+        <button class="tab-btn active" data-tab="tab-nickname">닉네임 변경</button>
         <button class="tab-btn" data-tab="tab-password">비밀번호 변경</button>
       </div>
       <hr style="margin: 10px 0;">

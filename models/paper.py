@@ -33,4 +33,4 @@ class RecommendationResponse(BaseModel):
     recommendations: List[Recommendation]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
