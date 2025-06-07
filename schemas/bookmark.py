@@ -1,5 +1,6 @@
 # schemas/bookmark.py
 from pydantic import BaseModel
+from typing import Optional
 
 class BookmarkCreate(BaseModel):
     paper_id: str
@@ -13,3 +14,5 @@ class BookmarkOut(BookmarkCreate):
 
     class Config:
         from_attributes = True
+    
+    paper_link: Optional[str] = None
