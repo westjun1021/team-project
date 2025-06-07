@@ -12,7 +12,7 @@ class Bookmark(Base):
     title = Column(String, nullable=False)
     authors = Column(String, nullable=True)
     published_year = Column(String, nullable=True)
-    paper_link = Column(String, nullable=True)
+    paper_link    = Column(String, nullable=False)
 
     # ✅ User 모델과의 관계 (중요)
     user = relationship("User", back_populates="bookmarks")

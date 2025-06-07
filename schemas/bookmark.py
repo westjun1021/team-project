@@ -6,6 +6,7 @@ class BookmarkCreate(BaseModel):
     title: str
     authors: str | None = None
     published_year: str | None = None
+    paper_link: str
 
 class BookmarkOut(BookmarkCreate):
     id: int
