@@ -1,18 +1,18 @@
-# schemas/bookmark.py
+#schemas/bookmark.py
 from pydantic import BaseModel
-from typing import Optional
+from datetime import datetime
 
 class BookmarkCreate(BaseModel):
-    paper_id: str
-    title: str
-    authors: str | None = None
-    published_year: str | None = None
-    paper_link: str
+    paper_id: int
+    paper_title: str
+    paper_link:  str  
 
-class BookmarkOut(BookmarkCreate):
+class BookmarkOut(BaseModel):
     id: int
+    paper_id: int
+    paper_title: str
+    paper_link:  str  
+    created_at: datetime
 
     class Config:
-        from_attributes = True
-    
-    paper_link: Optional[str] = None
+        orm_mode = True

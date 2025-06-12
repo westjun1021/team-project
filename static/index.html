@@ -3,375 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <title>DBpia 논문 추천</title>
-
-  <!-- favicon 적용 -->
-  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-
   <style>
+    /* (기존 스타일 그대로) */
     * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; margin: 0; }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
-    h1 { text-align: center; color: #333; }
-    button {
-      padding: 8px 16px;
-      background: #007BFF; color: white;
-      border: none; border-radius: 6px;
-      cursor: pointer; font-size: 14px;
-    }
-    button:hover { background: #0056b3; }
-    .form-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; align-items: center; }
-    .form-row label {
-      display: flex; align-items: center; gap: 8px;
-      font-weight: 600; flex: 1;
-    }
-    .form-row input, .form-row select {
-      flex: 1; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px;
-    }
-    #top-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
-    #greeting { font-weight: 600; align-self: center; }
-    #logout { display: none; }
-
-    /* 북마크 버튼 */
-    .bookmark-btn { margin-left: 10px; background: #ffb300; color: #333; }
-    .bookmark-btn.bookmarked { background: #ffd54f !important; color: #007BFF !important; }
-
-    /* 모달 공통 */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      align-items: center; justify-content: center;
-      z-index: 1000;
-    }
-    .modal.active { display: flex; }
-
-    .modal-content {
-      background: #fff;
-      padding: 20px 30px;
-      border-radius: 8px;
-      width: 500px;
-      max-height: 80vh;
-      overflow-y: auto;
-      position: relative;
-      z-index: 1001; /* 모달 배경 위에 뜨도록 */
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 10px; right: 12px;
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 1002; /* 닫기 버튼을 가장 위에 배치 */
-      color: #333;
-    }
-    .modal-close:hover { color: #e74c3c; }
-
-    .message { color: green; font-size: 0.9em; text-align: center; margin-top: 8px; }
-
-    /* 추천 */
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; padding: 40px; margin: 0; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px 40px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #333; margin-bottom: 30px; }
+    label { display: block; margin-top: 20px; font-weight: 600; color: #444; }
+    select, input[type="radio"] { margin-top: 8px; }
     .subject-group { margin-top: 10px; padding-left: 10px; }
     .subject-group label { display: inline-block; margin-right: 15px; font-weight: normal; }
+    button { margin-top: 30px; padding: 12px 24px; background-color: #007BFF; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
     #result { margin-top: 40px; }
-    .paper {
-      background: #f1f4f8; padding: 16px 20px; border-radius: 10px;
-      margin-bottom: 15px; border-left: 5px solid #007BFF; position: relative;
-    }
+    .paper { background: #f1f4f8; padding: 16px 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #007BFF; }
     .paper strong { font-size: 18px; color: #222; }
     .paper em { color: #666; display: block; margin-top: 4px; font-style: normal; }
     .paper a { display: inline-block; margin-top: 8px; color: #007BFF; text-decoration: none; }
     .paper a:hover { text-decoration: underline; }
 
-    /* 내 즐겨찾기 모달 */
-    #modal-bookmark .modal-content { width: 500px; max-height: 70vh; overflow-y: auto; }
-    .bm-list { margin: 0; padding: 0; list-style: none; }
-    .bm-list li {
-      margin-bottom: 15px;
-      background: #f9fbe7;
-      padding: 13px 18px;
-      border-radius: 8px;
-      border-left: 5px solid #ffd54f;
-      position: relative;
-      padding-right: 80px; /* 오른쪽 여백 확보 */
-      word-break: keep-all;
-    }
-    .bm-remove {
-      position: absolute;
-      top: 50%;
-      right: 16px;
-      transform: translateY(-50%);
-      color: #e74c3c;
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    /* ─────────── 마이페이지 내부 탭 버튼 색상 보정 ─────────── */
-    /* 기존 탭 버튼(.tab-buttons button)이 회색으로 표시되던 것을 파란색으로 변경 */
-    .tab-buttons button {
-      padding: 8px 16px;
-      background: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      margin-right: 8px;
-    }
-    .tab-buttons button:hover {
-      background: #0056b3;
-    }
-    .tab-buttons button.active {
-      background: #0056b3; /* 활성화된 탭은 더 진한 파란색 */
-    }
-    .mypage-tab { margin-top: 10px; }
-
-    /* ─────────── 마이페이지 내부 '변경하기' 버튼 색상 보정 ─────────── */
-    /* 닉네임 변경, 비밀번호 변경 폼 내 버튼을 기본 버튼 스타일과 동일하게 적용 */
-    #nickname-form button,
-    #mypage-form button {
-      padding: 8px 16px;
-      background: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    #nickname-form button:hover,
-    #mypage-form button:hover {
-      background: #0056b3;
-    }
   </style>
-  <link rel="stylesheet" href="/static/css/style.css">
-
-  <!-- CSS Override for Bookmark Modal Flex Layout -->
-  <style>
-    #modal-bookmark .bm-list li {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      margin-bottom: 15px;
-      background: #f9fbe7;
-      padding: 13px 18px;
-      border-radius: 8px;
-      border-left: 5px solid #ffd54f;
-      word-break: break-word;
-    }
-    #modal-bookmark .bm-list li .bm-title {
-      flex: 1;
-      margin-right: 12px;
-      white-space: normal;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    #modal-bookmark .bm-remove {
-      position: static !important;
-      transform: none !important;
-      margin-left: 12px !important;
-      color: #e74c3c;
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    /* ID/상세보기 한 줄로 */
-    #modal-bookmark .bm-info {
-      display: inline-block !important;
-      white-space: nowrap !important;
-      margin: 0 12px !important;
-      font-size: 0.9em;
-    }
-    #modal-bookmark .bm-info a {
-      text-decoration: underline !important;
-      margin-left: 4px !important;
-    }
-  </style>
-  <!-- End CSS Override -->
 </head>
 <body>
+
   <div class="container">
     <h1>📚 DBpia 인기 논문 추천 시스템</h1>
 
-    <!-- 상단바 -->
-    <div id="top-bar">
-      <button id="open-signup">회원가입</button>
-      <button id="open-login">로그인</button>
-      <span id="greeting"></span>
-      <button id="open-bookmark" style="display:none;">내 즐겨찾기</button>
-      <button id="open-mypage" style="display:none;">마이페이지</button>
-      <button id="logout">로그아웃</button>
-    </div>
-
-    <!-- 추천 폼 -->
     <form id="recommend-form">
-      <div class="form-row">
-        <label>연도 선택
-          <select name="pyear">
-            <option value="">(선택 안 함)</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-          </select>
-        </label>
-        <label>월 선택
-          <select name="pmonth">
-            <option value="">(선택 안 함)</option>
-            <option value="01">1월</option>
-            <option value="02">2월</option>
-            <option value="03">3월</option>
-            <option value="04">4월</option>
-            <option value="05">5월</option>
-            <option value="06">6월</option>
-            <option value="07">7월</option>
-            <option value="08">8월</option>
-            <option value="09">9월</option>
-            <option value="10">10월</option>
-            <option value="11">11월</option>
-            <option value="12">12월</option>
-          </select>
-        </label>
+      <label>연도 선택:
+        <select name="pyear">
+          <option value="">(선택 안 함)</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+        </select>
+      </label>
+
+      <label>월 선택:
+        <select name="pmonth">
+          <option value="">(선택 안 함)</option>
+          <option value="01">1월</option>
+          <option value="02">2월</option>
+          <option value="03">3월</option>
+          <option value="04">4월</option>
+          <option value="05">5월</option>
+          <option value="06">6월</option>
+          <option value="07">7월</option>
+          <option value="08">8월</option>
+          <option value="09">9월</option>
+          <option value="10">10월</option>
+          <option value="11">11월</option>
+          <option value="12">12월</option>
+        </select>
+      </label>
+
+      <label>주제 분류:</label>
+      <div class="subject-group">
+        <label><input type="radio" name="category" value=""> 전체</label>
+        <label><input type="radio" name="category" value="1"> 인문학</label>
+        <label><input type="radio" name="category" value="2"> 사회과학</label>
+        <label><input type="radio" name="category" value="3"> 자연과학</label>
+        <label><input type="radio" name="category" value="4"> 공학</label>
+        <label><input type="radio" name="category" value="5"> 의약학</label>
+        <label><input type="radio" name="category" value="6"> 농수해양</label>
+        <label><input type="radio" name="category" value="7"> 예술체육</label>
+        <label><input type="radio" name="category" value="8"> 복합학</label>
+        <label><input type="radio" name="category" value="9"> 교양</label>
       </div>
-      <div class="form-row">
-        <label>정렬 기준:
-          <select name="sort_by">
-            <option value="popularity">인기순</option>
-            <option value="title">제목순</option>
-          </select>
-        </label>
-        <label>정렬 순서:
-          <select name="order">
-            <option value="desc">내림차순</option>
-            <option value="asc">오름차순</option>
-          </select>
-        </label>
-      </div>
-      <div class="form-row" style="display: flex; gap: 8px;">
-        <label style="flex: 2;">검색:
-          <select name="query_field" id="queryField" style="width: 100%;">
-            <option value="all">전체</option>
-            <option value="title">논문명</option>
-            <option value="author">저자명</option>
-          </select>
-        </label>
-        <label style="flex: 8;">
-          <input type="text" name="query" id="searchInput" list="recentList" placeholder="논문 제목 또는 저자" style="width: 100%;">
-          <datalist id="recentList"></datalist>
-        </label>
-      </div>
-      <div class="form-row">
-        <label>주제 분류:</label>
-        <div class="subject-group">
-          <label><input type="radio" name="category" value="">전체</label>
-          <label><input type="radio" name="category" value="1">인문학</label>
-          <label><input type="radio" name="category" value="2">사회과학</label>
-          <label><input type="radio" name="category" value="3">자연과학</label>
-          <label><input type="radio" name="category" value="4">공학</label>
-          <label><input type="radio" name="category" value="5">의약학</label>
-          <label><input type="radio" name="category" value="6">농수해양</label>
-          <label><input type="radio" name="category" value="7">예술체육</label>
-          <label><input type="radio" name="category" value="8">복합학</label>
-          <label><input type="radio" name="category" value="9">교양</label>
-        </div>
-      </div>
+
       <button type="submit">논문 추천받기</button>
     </form>
+
     <div id="result"></div>
   </div>
 
-  <!-- 회원가입 모달 -->
-  <div id="modal-signup" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" data-close="modal-signup">&times;</button>
-      <h2>회원가입</h2>
-      <form id="signup-form">
-        <div class="form-row"><label>아이디<input type="text" name="username" required minlength="3"></label></div>
-        <div class="form-row"><label>닉네임<input type="text" name="nickname" required minlength="2"></label></div>
-        <div class="form-row"><label>비밀번호<input type="password" name="password" required minlength="6"></label></div>
-        <button type="submit">가입하기</button>
-      </form>
-      <div id="signup-msg" class="message"></div>
-    </div>
-  </div>
+  <script>
+    const form      = document.getElementById('recommend-form');
+    const resultDiv = document.getElementById('result');
 
-  <!-- 로그인 모달 -->
-  <div id="modal-login" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" data-close="modal-login">&times;</button>
-      <h2>로그인</h2>
-      <form id="login-form">
-        <div class="form-row"><label>아이디<input type="text" name="username" required></label></div>
-        <div class="form-row"><label>비밀번호<input type="password" name="password" required></label></div>
-        <button type="submit">로그인</button>
-      </form>
-      <div id="login-msg" class="message"></div>
-    </div>
-  </div>
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-  <!-- 마이페이지 모달 -->
-  <div id="modal-mypage" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" data-close="modal-mypage">&times;</button>
-      <h2>마이페이지</h2>
+      // 쿼리스트링 생성
+      const params   = new URLSearchParams(new FormData(form)).toString();
+      const response = await fetch(`/recommend?${params}`);
+      const json     = await response.json();
 
-      <!-- 탭 버튼 -->
-      <div class="tab-buttons" style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <button class="tab-btn active" data-tab="tab-nickname">닉네임 변경</button>
-        <button class="tab-btn" data-tab="tab-password">비밀번호 변경</button>
-      </div>
-      <hr style="margin: 10px 0;">
+      // 기존 결과 초기화
+      resultDiv.innerHTML = '';
 
-      <!-- 닉네임 변경 탭 -->
-      <div id="tab-nickname" class="mypage-tab">
-        <form id="nickname-form">
-          <div class="form-row">
-            <label>새 닉네임<input type="text" name="nickname" required minlength="2"></label>
-          </div>
-          <button type="submit">변경하기</button>
-        </form>
-        <div id="nickname-msg" class="message"></div>
-      </div>
+      // recommendations 배열 추출
+      const list = json.recommendations || [];
+      if (list.length === 0) {
+        resultDiv.innerHTML = "<p>추천된 논문이 없습니다.</p>";
+        return;
+      }
 
-      <!-- 비밀번호 변경 탭 -->
-      <div id="tab-password" class="mypage-tab" style="display: none;">
-        <form id="mypage-form">
-          <div class="form-row"><label>현재 비밀번호<input type="password" name="current_password" required minlength="6"></label></div>
-          <div class="form-row"><label>새 비밀번호<input type="password" name="new_password" required minlength="6"></label></div>
-          <button type="submit">변경하기</button>
-        </form>
-        <div id="mypage-msg" class="message"></div>
-      </div>
-    </div>
-  </div>
+      // 논문 목록 렌더링
+      list.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'paper';
+        div.innerHTML = `
+          <strong>${item.title}</strong>
+          <em>저자: ${item.authors.map(a => a.name).join(', ')}</em>
+          <p>간행물: ${item.publication.name || 'N/A'}</p>
+          <a href="${item.link_url}" target="_blank">상세 보기</a>
+        `;
+        resultDiv.appendChild(div);
+      });
+    });
+  </script>
 
-  <!-- 내 즐겨찾기 모달 -->
-  <div id="modal-bookmark" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" data-close="modal-bookmark">&times;</button>
-      <h2>내 즐겨찾기 논문</h2>
-      <ul class="bm-list" id="bm-list"></ul>
-      <div id="bookmark-msg" class="message"></div>
-    </div>
-  </div>
-
-  <!-- 분할된 JS 파일 로드 -->
-  <script src="/static/js/utils.js"></script>
-  <script src="/static/js/search.js"></script>
-  <script src="/static/js/modal.js"></script>
-  <script src="/static/js/auth.js"></script>
-  <script src="/static/js/bookmarks.js"></script>
-  <script src="/static/js/mypage.js"></script>
-  <script src="/static/js/signup.js"></script>
-  <script src="/static/js/index.js"></script>
 </body>
 </html>
